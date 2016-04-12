@@ -7,7 +7,7 @@
 Features
 --------
 
-* Supports Python 2.6 and later (including Python 3). Version 1.0 also supported Python 2.4 and 2.5.
+* Supports Python 2.6 and later (including Python 3).
 * Rich API - chances are that whatever you want to do there's a simple and elegant way of doing it.
 * Bit level slicing, joining, searching, replacing and more.
 * Create bitstrings from hex, octal, binary, files, formatted strings, bytes, integers and floats of different endiannesses.
@@ -17,7 +17,7 @@ Features
 Download
 --------
 
-To download the module, as well as for defect reports, enhancement requests and Subversion repository browsing go to the project's home on Google Code: http://python-bitstring.googlecode.com
+To download the module, as well as for defect reports, enhancement requests and Subversion repository browsing go to the project's home on GitHub: http://scott-griffiths.github.io/bitstring/
 
 You may also be able to use just ``easy_install bitstring``.
 

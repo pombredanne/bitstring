@@ -5,7 +5,7 @@ import sys
 
 sys.path.insert(0, '..')
 import bitstring
-from _pybitstring import MmapByteArray
+from bitstring import MmapByteArray
 from bitstring import Bits, BitArray, ConstByteStore, ByteStore
 
 class Creation(unittest.TestCase):
@@ -58,8 +58,10 @@ class Creation(unittest.TestCase):
 
     def testCreationFromOctErrors(self):
         s = Bits('0b00011')
-        self.assertRaises(bitstring.InterpretError, s._getoct)
-        self.assertRaises(bitstring.CreationError, s._setoct, '8')
+        with self.assertRaises(bitstring.InterpretError):
+            s.oct
+        with self.assertRaises(bitstring.CreationError):
+            s = Bits('oct=8')
 
     def testCreationFromUintWithOffset(self):
         self.assertRaises(bitstring.Error, Bits, uint=12, length=8, offset=1)
@@ -105,7 +107,8 @@ class Creation(unittest.TestCase):
     def testCreationFromSeErrors(self):
         self.assertRaises(bitstring.CreationError, Bits, se=-5, length=33)
         s = Bits(bin='001000')
-        self.assertRaises(bitstring.InterpretError, s._getse)
+        with self.assertRaises(bitstring.InterpretError):
+            s.se
 
     def testCreationFromUe(self):
         [self.assertEqual(Bits(ue=i).ue, i) for i in range(0, 20)]
@@ -117,7 +120,8 @@ class Creation(unittest.TestCase):
         self.assertRaises(bitstring.CreationError, Bits, ue=-1)
         self.assertRaises(bitstring.CreationError, Bits, ue=1, length=12)
         s = Bits(bin='10')
-        self.assertRaises(bitstring.InterpretError, s._getue)
+        with self.assertRaises(bitstring.InterpretError):
+            s.ue
 
     def testCreationFromBool(self):
         a = Bits('bool=1')
@@ -133,17 +137,6 @@ class Creation(unittest.TestCase):
     def testDataStoreType(self):
         a = Bits('0xf')
         self.assertEqual(type(a._datastore), bitstring.ConstByteStore)
-        a = Bits(hex='f')
-# TODO: Reinstate these tests!
-#        self.assertEqual(type(a._datastore), bitstring.ConstByteStore)
-        a = Bits(float=0.7, length=32)
-        #self.assertEqual(type(a._datastore), bitstring.ConstByteStore)
-        b = Bits(a)
-        #self.assertEqual(type(b._datastore), bitstring.ConstByteStore)
-        b = BitArray(b)
-        #self.assertEqual(type(b._datastore), bitstring.ByteStore)
-        c = Bits(b)
-        #self.assertEqual(type(c._datastore), bitstring.ConstByteStore)
 
 
 class Initialisation(unittest.TestCase):
@@ -287,10 +280,10 @@ class Comparisons(unittest.TestCase):
     def testUnorderable(self):
         a = Bits(5)
         b = Bits(5)
-        self.assertRaises(TypeError, a.__lt__, b)
-        self.assertRaises(TypeError, a.__gt__, b)
-        self.assertRaises(TypeError, a.__le__, b)
-        self.assertRaises(TypeError, a.__ge__, b)
+        with self.assertRaises(TypeError): a <  b
+        with self.assertRaises(TypeError): a >  b
+        with self.assertRaises(TypeError): a <=  b
+        with self.assertRaises(TypeError): a >=  b
 
 
 class Subclassing(unittest.TestCase):
@@ -389,9 +382,12 @@ class ModifiedByAddingBug(unittest.TestCase):
         self.assertEqual(c, 201)
 
 
-# class FindPaddingBits(unittest.TestCase):
-#
-#     def testFindJustPadding(self):
-#         a = Bits('0b101001110')
-#         p = a.find('pad:1')
-#         self.assertEqual(p[0], 0)
+class WrongTypeBug(unittest.TestCase):
+
+    def testAppendToBits(self):
+        a = Bits(BitArray())
+        with self.assertRaises(AttributeError):
+            a.append('0b1')
+        self.assertEqual(type(a), Bits)
+        b = bitstring.ConstBitStream(bitstring.BitStream())
+        self.assertEqual(type(b), bitstring.ConstBitStream)
